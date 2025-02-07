@@ -64,7 +64,7 @@ const generatelinkTemplate = `Respond with a JSON markdown block containing only
 Given the recent messages , extract the following information about the requested generation Link:
 -Title of the Payment
 -Description of the Payment , let this be the summary of the payment
--Amount of the payment
+-Amount of the payment , let the amount be a number e.g 10USDC -> 10 , 20USDC -> 20
 -address of the user to accept payment
 -other details the user wants to collect from the payer.(like name , age , job description etc)...
 
@@ -74,7 +74,7 @@ Respond with a JSON markdown block containing only the extracted values.
 {
    "title":"Contribution for Davids Graduation Ceremony",
    "description":"This contribution is for Davids Graduation Ceremony",
-   "amount":"1000",
+   "amount":1000,
    "address":"0xhjhhi1uiuio"
    "details":{}
 }
@@ -127,8 +127,8 @@ export const generateAction: Action = {
             state = (await runtime.composeState(message)) as State;
         } else {
             state = await runtime.updateRecentMessageState(state)
-        };  
-        
+        };
+
         const getContent = composeContext({
             state,
             template: generatelinkTemplate
@@ -155,34 +155,48 @@ export const generateAction: Action = {
         try {
             const { data, error } = await supabase.from("users").select("*").eq('agent_id', state.agentId);
             if (data.length === 0) {
-                const values = getOrCreateUser(supabase, state.agentId);
-                console.log("Refactor", values);
-                const code = generateUniqueCode();
-                // const { data, error } = await supabase.from("payments").insert([{
-                //     title: content.title,
-                //     code: code,
-                //     payment_description: content?.description,
-                //     amount: Number(content.amount),
-                //     address: content.address,
-                //     details: content.details,
-                //     agent_id: state.agentId,
-                //     user_id: id,
-                //     token_types: ['USDC'],
-                //     chains: ['sui'],
-                // }]);
-                callback({
-                    text: "Successfully created your payment link is www.obverse.vercel.app/hshsh372",
-                    content: { text: `Successfully created your payment link is www.obverse.vercel.app/${code}` }
-                })
+                const { data: newUser, error: createError } = await supabase
+                    .from('users')
+                    .insert([{
+                        agent_id: state.agentId,
+                        payment_links_count: 0,
+                        total_amount: 0
+                    }])
+                    .select()
+                    .single();
 
-                // console.log('Document created successfully:', data)
-                // return data
+                if (createError) throw createError;
+                console.log("New User",)
+                const code = generateUniqueCode();
+                const { data, error } = await supabase.from("payments").insert([{
+                    title: content.title,
+                    code: code,
+                    payment_description: content?.description,
+                    amount: Number(content.amount),
+                    address: content.address,
+                    details: content.details,
+                    agent_id: state.agentId,
+                    user_id: newUser?.id,
+                    token_types: ['USDC'],
+                    chains: ['sui'],
+                }]).select();
+                callback({
+                    text: "Successfully created your payment link is",
+                    content: { text: `Successfully created your payment link ...` },
+                    url: `https://www.obverse.vercel.app/${data[0]?.id}`,
+                    attachments: [{
+                        url: `https://www.obverse.vercel.app/${data[0]?.id}`,
+                        title: `${content.title} payment link`,
+                        description: `${content?.description || ""}`,
+                        source: `Fourier`,
+                        text: `${content?.description || ""}`,
+                        id: `${data[0]?.id}`
+                    }]
+                })
+                console.log("payment", data)
+                console.log("user", newUser)
             } else {
                 const code = generateUniqueCode();
-                const values = getOrCreateUser(supabase, state.agentId);
-                const { data: Payment } = await supabase.from("payments").select("*");
-                // console.log("Payment", Payment);
-                // console.log("Refactor", values);
                 const { data: Newdata, error } = await supabase.from("payments").insert([{
                     title: content.title,
                     code: code,
@@ -202,8 +216,8 @@ export const generateAction: Action = {
                 }
                 console.log('Insert successful:', Newdata); // Debug log
                 callback({
-                    text: `Successfully created your payment link is www.obverse.vercel.app/${code}`,
-                    content: { text: `Successfully created your payment link is www.obverse.vercel.app/${code}` }
+                    text: `Successfully created your payment link is https://www.obverse.vercel.app/${code}`,
+                    content: { text: `Successfully created your payment link is https://www.obverse.vercel.app/${code}` }
                 })
             }
         } catch (error) {
