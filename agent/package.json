@@ -67,6 +67,8 @@
         "@elizaos/plugin-initia": "workspace:*",
         "@elizaos/plugin-image-generation": "workspace:*",
         "@elizaos/plugin-intiface": "workspace:*",
+        "@elizaos/plugin-fourier": "workspace:*",
+        
         "@elizaos/plugin-lens-network": "workspace:*",
         "@elizaos/plugin-letzai": "workspace:*",
         "@elizaos/plugin-lit": "workspace:*",
