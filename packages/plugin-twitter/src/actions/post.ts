@@ -146,9 +146,9 @@ export const postAction: Action = {
     description: "Post a tweet to Twitter",
     validate: async (
         runtime: IAgentRuntime,
-// eslint-disable-next-line
+        // eslint-disable-next-line
         _message: Memory,
-// eslint-disable-next-line
+        // eslint-disable-next-line
         _state?: State
     ) => {
         const username = runtime.getSetting("TWITTER_USERNAME");
