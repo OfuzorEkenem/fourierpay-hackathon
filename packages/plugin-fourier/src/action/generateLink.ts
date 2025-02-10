@@ -39,7 +39,7 @@ interface PaymentData {
 const SUPABASE_URL = 'https://gowfvrwxcjffdazpttem.supabase.co';
 const DEFAULT_TOKEN_TYPES = ['USDC'];
 const DEFAULT_CHAINS = ['sui'];
-const PAYMENT_URL_BASE = 'https://www.obverse.vercel.app';
+const PAYMENT_URL_BASE = 'https://fourier-sui.vercel.app/payment';
 
 function isGenerateLink(
     content: GenerateLink
@@ -183,9 +183,9 @@ export const generateAction: Action = {
                 callback({
                     text: "Successfully created your payment link is",
                     content: { text: `Successfully created your payment link ...` },
-                    url: `https://www.obverse.vercel.app/${data[0]?.id}`,
+                    url: `${PAYMENT_URL_BASE}/${data[0]?.id}`,
                     attachments: [{
-                        url: `https://www.obverse.vercel.app/${data[0]?.id}`,
+                        url: `${PAYMENT_URL_BASE}/${data[0]?.id}`,
                         title: `${content.title} payment link`,
                         description: `${content?.description || ""}`,
                         source: `Fourier`,
@@ -216,8 +216,8 @@ export const generateAction: Action = {
                 }
                 console.log('Insert successful:', Newdata); // Debug log
                 callback({
-                    text: `Successfully created your payment link is https://www.obverse.vercel.app/${code}`,
-                    content: { text: `Successfully created your payment link is https://www.obverse.vercel.app/${code}` }
+                    text: `Successfully created your payment link is ${PAYMENT_URL_BASE}/${code}`,
+                    content: { text: `Successfully created your payment link is ${PAYMENT_URL_BASE}/${code}` }
                 })
             }
         } catch (error) {
